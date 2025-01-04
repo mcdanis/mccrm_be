@@ -1,0 +1,2 @@
+migration run = npx prisma migrate dev --name init
+run every changes in schema.prisma = npx prisma generate
