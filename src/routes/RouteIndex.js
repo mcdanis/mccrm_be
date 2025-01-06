@@ -12,6 +12,7 @@ const userController = new UserController();
 
 router.get("/test", (req, res) => userController.getUsers(req, res));
 router.post("/user/add", (req, res) => userController.addUser(req, res));
+router.post("/user/login", (req, res) => userController.login(req, res));
 
 // router.use(auth);
 
