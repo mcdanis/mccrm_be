@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const Joi = require("joi");
+require('dotenv').config();
 
 class UserController extends Controller {
   constructor() {
@@ -95,13 +96,14 @@ class UserController extends Controller {
 
       const token = jwt.sign(
         { userId: user.id, email: user.email },
-        JWT_SECRET,
+        process.env.JWT,
         { expiresIn: "7d" }
       );
 
-      res.status(200).json({
+      return super.response(res, {
+        error: false,
         message: "Login successful",
-        token, // Kirim token untuk otentikasi lebih lanjut
+        token: token
       });
     } catch (err) {
       console.error(err);

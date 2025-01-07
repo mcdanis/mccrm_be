@@ -1,0 +1,3 @@
+windwo
+- npx prisma generate
+- instal ulang bycrypt
