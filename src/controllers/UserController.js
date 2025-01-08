@@ -1,10 +1,4 @@
-const Controller = require("../Controller");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const Joi = require("joi");
-require('dotenv').config();
+const Controller = require("./Controller");
 
 class UserController extends Controller {
   constructor() {
@@ -22,13 +16,13 @@ class UserController extends Controller {
 
   async addUser(req, res) {
     try {
-      const userSchema = Joi.object({
-        name: Joi.string().min(3).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(6).required(),
-        client_id: Joi.number().integer().required(),
-        title: Joi.string().optional(),
-        role: Joi.string().required(),
+      const userSchema = super.joi().object({
+        name: super.joi().string().min(3).required(),
+        email: super.joi().string().email().required(),
+        password: super.joi().string().min(6).required(),
+        client_id: super.joi().number().integer().required(),
+        title: super.joi().string().optional(),
+        role: super.joi().string().required(),
       });
 
       const { error, value } = userSchema.validate(req.body);
@@ -36,11 +30,11 @@ class UserController extends Controller {
       if (error) {
         res.status(400).json({ error: error.details[0].message });
       } else {
-        const newPassword = await bcrypt.hash(value.password, 10);
+        const newPassword = await super.bcrypt().hash(value.password, 10);
 
         value.password = newPassword;
 
-        await prisma.user.create({
+        await super.prisma().user.create({
           data: value,
         });
 
@@ -63,9 +57,9 @@ class UserController extends Controller {
   }
 
   async login(req, res) {
-    const userSchema = Joi.object({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(6).required(),
+    const userSchema = super.joi().object({
+      email: super.joi().string().email().required(),
+      password: super.joi().string().min(6).required(),
     });
 
     const { error, value } = userSchema.validate(req.body);
@@ -75,7 +69,7 @@ class UserController extends Controller {
     }
 
     try {
-      const user = await prisma.user.findUnique({
+      const user = await super.prisma().user.findUnique({
         where: {
           email: value.email,
         },
@@ -85,7 +79,7 @@ class UserController extends Controller {
         return super.response(res, { error: "User not found" }, 404);
       }
 
-      const isPasswordValid = await bcrypt.compare(
+      const isPasswordValid = await super.bcrypt().compare(
         value.password,
         user.password
       );
@@ -94,7 +88,7 @@ class UserController extends Controller {
         return super.response(res, { error: "Invalid Password" }, 401);
       }
 
-      const token = jwt.sign(
+      const token = super.jwt().sign(
         { userId: user.id, email: user.email },
         process.env.JWT,
         { expiresIn: "7d" }
