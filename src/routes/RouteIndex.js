@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../middleware/AuthMiddleware");
 
 const controllers = {
     UserController: require("../controllers/UserController"),
@@ -18,6 +19,6 @@ router.post("/user/add", (req, res) => instances.UserController.addUser(req, res
 router.post("/login", (req, res) => instances.UserController.login(req, res));
 
 // CLIENT
-router.post("/client/add", (req, res) => instances.ClientController.addClient(req, res));
+router.post("/client/add", authMiddleware, async (req, res) => instances.ClientController.addClient(req, res));
 
 module.exports = router;
