@@ -5,6 +5,15 @@ class ClientController extends Controller {
     super();
   }
 
+  async getClients(req, res) {
+    try {
+      const users = await super.prisma().client.findMany();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch clients" });
+    }
+  }
+
   async addClient(req, res) {
     try {
       const clientScheme = super.joi().object({

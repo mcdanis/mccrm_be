@@ -7,7 +7,7 @@ class UserController extends Controller {
 
   async getUsers(req, res) {
     try {
-      const users = await prisma.user.findMany();
+      const users = await super.prisma().user.findMany();
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch users" });
@@ -20,7 +20,7 @@ class UserController extends Controller {
         name: super.joi().string().min(3).required(),
         email: super.joi().string().email().required(),
         password: super.joi().string().min(6).required(),
-        client_id: super.joi().number().integer().required(),
+        client_id: super.joi().number().required(),
         title: super.joi().string().optional(),
         role: super.joi().string().required(),
       });
@@ -97,7 +97,8 @@ class UserController extends Controller {
       return super.response(res, {
         error: false,
         message: "Login successful",
-        token: token
+        token: token,
+        userId: user.id
       });
     } catch (err) {
       console.error(err);
