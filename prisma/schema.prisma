@@ -4,8 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-// run every changes in schema.prisma = npx prisma generate
 // migration run = npx prisma migrate dev --name init
+// run every changes in schema.prisma = npx prisma generate
 
 generator client {
   provider = "prisma-client-js"
@@ -47,6 +47,7 @@ model Campaign {
   status String @db.VarChar(2)
   created_by Int
   createdAt DateTime @default(now())
+  subCampaigns Sub_Campaign[]
 }
 
 model Sub_Campaign {
@@ -59,7 +60,10 @@ model Sub_Campaign {
   client_id Int
   created_by Int
   createdAt DateTime @default(now())
+  campaign    Campaign     @relation(fields: [campaign_id], references: [id])
+
 }
+
 model Contact {
   id  Int @id @default(autoincrement())
   sub_campaign_id Int

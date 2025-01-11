@@ -28,13 +28,8 @@ class ClientController extends Controller {
       const { error, value } = clientScheme.validate(req.body);
 
       if (error) {
-        return super.response(
-          res,
-          { error: error.details[0].message },
-          400
-        );
+        return super.response(res, { error: error.details[0].message }, 400);
       } else {
-
         await super.prisma().client.create({
           data: value,
         });

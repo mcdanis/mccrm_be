@@ -14,6 +14,24 @@ class UserController extends Controller {
     }
   }
 
+  async getUser(req, res) {
+    const { id } = req.params;
+
+    try {
+      const users = await super.prisma().user.findFirst({
+        where: {
+          id: Number(id),
+        },
+      });
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({
+        error: "Failed to fetch a user",
+        detail: error.message || error,
+      });
+    }
+  }
+
   async addUser(req, res) {
     try {
       const userSchema = super.joi().object({
@@ -79,26 +97,25 @@ class UserController extends Controller {
         return super.response(res, { error: "User not found" }, 404);
       }
 
-      const isPasswordValid = await super.bcrypt().compare(
-        value.password,
-        user.password
-      );
+      const isPasswordValid = await super
+        .bcrypt()
+        .compare(value.password, user.password);
 
       if (!isPasswordValid) {
         return super.response(res, { error: "Invalid Password" }, 401);
       }
 
-      const token = super.jwt().sign(
-        { userId: user.id, email: user.email },
-        process.env.JWT,
-        { expiresIn: "7d" }
-      );
+      const token = super
+        .jwt()
+        .sign({ userId: user.id, email: user.email }, process.env.JWT, {
+          expiresIn: "7d",
+        });
 
       return super.response(res, {
         error: false,
         message: "Login successful",
         token: token,
-        userId: user.id
+        userId: user.id,
       });
     } catch (err) {
       console.error(err);
