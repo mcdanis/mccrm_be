@@ -32,15 +32,48 @@ class CampaignController extends Controller {
   }
 
   async getCampaignsWithSubs(req, res) {
+    const { status, campaign } = req.query;
     try {
       const data = await super.prisma().campaign.findMany({
         include: {
-          subCampaigns: true,
+          subCampaigns: {
+            where: {
+              status: String(1), // Menyaring sub-kampanye dengan status "1"
+            },
+          },
+        },
+        where: {
+          ...(status ? { status: status } : {}),
+          ...(campaign
+            ? {
+                OR: [
+                  {
+                    name: {
+                      contains: campaign,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    subCampaigns: {
+                      some: {
+                        name: {
+                          contains: campaign,
+                          mode: "insensitive",
+                        },
+                      },
+                    },
+                  },
+                ],
+              }
+            : {}),
         },
       });
+
       res.json(data);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch clients" });
+      res
+        .status(500)
+        .json({ error: "Failed to fetch campaign", detail: error.message });
     }
   }
 
@@ -55,6 +88,7 @@ class CampaignController extends Controller {
         subCampaignManager: super.joi().number().required(),
         subCampaignStatus: super.joi().number().required(),
         userId: super.joi().number().required(),
+        isCampaign: super.joi().allow(null),
       });
 
       const { error, value } = scheme.validate(req.body);
@@ -62,18 +96,23 @@ class CampaignController extends Controller {
       if (error) {
         return super.response(res, { error: error.details[0].message }, 400);
       } else {
-        const campaign = await super.prisma().campaign.create({
-          data: {
-            name: value.campaignName,
-            client_id: value.clientId,
-            status: String(value.campaignStatus),
-            created_by: value.userId,
-          },
-        });
+        let campaignId = null;
+        campaignId = value.isCampaign;
+        if (!value.isCampaign) {
+          const campaign = await super.prisma().campaign.create({
+            data: {
+              name: value.campaignName,
+              client_id: value.clientId,
+              status: String(value.campaignStatus),
+              created_by: value.userId,
+            },
+          });
+          campaignId = campaign.id;
+        }
 
         await super.prisma().sub_Campaign.create({
           data: {
-            campaign_id: campaign.id,
+            campaign_id: campaignId,
             name: value.subCampaignName,
             owner: value.subCampaignOwner,
             manager: value.subCampaignManager,
@@ -101,5 +140,4 @@ class CampaignController extends Controller {
     }
   }
 }
-
 module.exports = CampaignController;
