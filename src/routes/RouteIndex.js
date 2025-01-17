@@ -7,6 +7,7 @@ const controllers = {
   ClientController: require("../controllers/ClientController"),
   Controller: require("../controllers/Controller"),
   CampaignController: require("../controllers/CampaignController"),
+  ContactController: require("../controllers/ContactController"),
 };
 
 const instances = {};
@@ -51,6 +52,14 @@ router.post("/campaign/add", authMiddleware, async (req, res) =>
 // SUB CAMPAIGN
 router.get("/sub-campaign/:id", (req, res) =>
   instances.CampaignController.getSubCampaign(req, res)
+);
+
+// CONTACT
+router.post("/campaign/sub-campaign/contact", (req, res) =>
+  instances.ContactController.addContact(req, res)
+);
+router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
+  instances.ContactController.getContacts(req, res)
 );
 
 module.exports = router;

@@ -67,16 +67,17 @@ model Sub_Campaign {
 model Contact {
   id  Int @id @default(autoincrement())
   sub_campaign_id Int
-  first_name String @db.VarChar(20)
-  last_name String @db.VarChar(30)
+  full_name String @db.VarChar(100)
   email String @unique
+  phone_number String @db.VarChar(20)
   country String @db.VarChar(30)
+  company String?
   address String @db.VarChar(255)
   tag String @db.VarChar(10)
   level_priority String @db.VarChar(2)
-  source String
+  source String?
   status String @db.VarChar(2)
-  result_negotiation String
+  result_negotiation String?
   createdAt DateTime @default(now())
 }
 

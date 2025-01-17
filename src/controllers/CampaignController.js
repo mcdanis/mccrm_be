@@ -21,6 +21,9 @@ class CampaignController extends Controller {
         where: {
           id: Number(id),
         },
+        include: {
+          campaign: true,
+        },
       });
       res.json(data);
     } catch (error) {
