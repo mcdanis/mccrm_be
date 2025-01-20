@@ -79,10 +79,11 @@ model Contact {
   status String @db.VarChar(2)
   result_negotiation String?
   createdAt DateTime @default(now())
-  contactBant Contact_Bant[]
+  contactBant Contact_Bant? @relation
   contactActivity Contact_Activity[]
   contactNote Contact_Note[]
   contactTimeline Contact_Timeline[]
+  contactFinal Contact_final? @relation
 }
 
 // untuk menyimpan relasi kontak untuk mengetahui kontak ini di buat dari kontak lain kontak apa
@@ -109,6 +110,25 @@ model Contact_Note {
   createdAt DateTime @default(now())
   contact    Contact     @relation(fields: [contact_id], references: [id])
 }
+
+model Contact_final {
+  id  Int @id @default(autoincrement())
+  sub_campaign_id Int
+  contact_id Int @unique
+  result_negotiation String @db.Text
+  project_name String
+  start_date String
+  end_date String
+  deal Int
+  payment_status Int
+  deal_done Int
+  evaluation String @db.Text
+  feedback String @db.Text
+  dorumentation String @db.Text
+  createdAt DateTime @default(now())
+  contact    Contact     @relation(fields: [contact_id], references: [id])
+}
+
 model Contact_Activity {
   id  Int @id @default(autoincrement())
   contact_id Int
@@ -119,7 +139,7 @@ model Contact_Activity {
 }
 model Contact_Bant {
   id  Int @id @default(autoincrement())
-  contact_id Int
+  contact_id Int @unique
   lead_type Int
   lead_owner Int
   budget String
@@ -129,7 +149,8 @@ model Contact_Bant {
   spesification_project String
   next_step String
   createdAt DateTime @default(now())
-  contact    Contact     @relation(fields: [contact_id], references: [id])
+  contact    Contact  @relation(fields: [contact_id], references: [id])
+
 }
 model Contact_Timeline {
   id  Int @id @default(autoincrement())

@@ -33,6 +33,7 @@ class ContactController extends Controller {
           contactBant: true,
           contactActivity: true,
           contactTimeline: true,
+          contactFinal: true,
         },
       });
 
