@@ -61,5 +61,8 @@ router.post("/campaign/sub-campaign/contact", (req, res) =>
 router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
   instances.ContactController.getContacts(req, res)
 );
+router.get("/campaign/sub-campaign/contact/:id", (req, res) =>
+  instances.ContactController.getContact(req, res)
+);
 
 module.exports = router;

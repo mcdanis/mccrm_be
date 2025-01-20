@@ -29,8 +29,27 @@ class ContactController extends Controller {
         where: {
           id: Number(id),
         },
+        include: {
+          contactBant: true,
+          contactActivity: true,
+          contactTimeline: true,
+        },
       });
-      res.json(data);
+
+      const dataCampaign = await super.prisma().sub_Campaign.findFirst({
+        where: {
+          id: Number(data.sub_campaign_id),
+        },
+        include: {
+          campaign: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.json({ contact: data, subCampaign: dataCampaign });
     } catch (error) {
       res.status(500).json({
         error: "Failed to get sub campaign",
