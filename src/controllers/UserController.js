@@ -67,7 +67,7 @@ class UserController extends Controller {
         {
           error: true,
           message: "Failed to input data",
-          detail: error,
+          detail: error.message,
         },
         500
       );
