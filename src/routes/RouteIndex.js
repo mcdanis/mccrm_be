@@ -64,6 +64,9 @@ router.post("/campaign/sub-campaign/contact/note", (req, res) =>
 router.post("/campaign/sub-campaign/contact/activity", (req, res) =>
   instances.ContactController.addActivity(req, res)
 );
+router.post("/campaign/sub-campaign/contact/update", (req, res) =>
+  instances.ContactController.updateContact(req, res)
+);
 router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
   instances.ContactController.getContacts(req, res)
 );

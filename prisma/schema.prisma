@@ -159,6 +159,7 @@ model Contact_Timeline {
   sub_campaign_id Int
   title String @db.VarChar(30)
   description String
+  type String? @db.VarChar(3)
   createdAt DateTime @default(now())
   contact    Contact     @relation(fields: [contact_id], references: [id])
 }
