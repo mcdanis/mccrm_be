@@ -23,6 +23,15 @@ class Controller {
     return jwt;
   }
 
+  async getUser(userId) {
+    const users = await this.prisma().user.findFirst({
+      where: {
+        id: Number(userId),
+      },
+    });
+    return users;
+  }
+
   async delete(req, res) {
     const { id, model } = req.params;
     try {

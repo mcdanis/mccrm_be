@@ -58,6 +58,12 @@ router.get("/sub-campaign/:id", (req, res) =>
 router.post("/campaign/sub-campaign/contact", (req, res) =>
   instances.ContactController.addContact(req, res)
 );
+router.post("/campaign/sub-campaign/contact/note", (req, res) =>
+  instances.ContactController.addNote(req, res)
+);
+router.post("/campaign/sub-campaign/contact/activity", (req, res) =>
+  instances.ContactController.addActivity(req, res)
+);
 router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
   instances.ContactController.getContacts(req, res)
 );
