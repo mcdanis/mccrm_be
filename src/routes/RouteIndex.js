@@ -8,6 +8,7 @@ const controllers = {
   Controller: require("../controllers/Controller"),
   CampaignController: require("../controllers/CampaignController"),
   ContactController: require("../controllers/ContactController"),
+  TimelineController: require("../controllers/TimelineController"),
 };
 
 const instances = {};
@@ -72,6 +73,9 @@ router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
 );
 router.get("/campaign/sub-campaign/contact/:id", (req, res) =>
   instances.ContactController.getContact(req, res)
+);
+router.get("/campaign/sub-campaign/contact/timeline/:id", (req, res) =>
+  instances.TimelineController.getContactTimeline(req, res)
 );
 
 module.exports = router;

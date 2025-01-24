@@ -101,7 +101,8 @@ class ContactController extends Controller {
           value.contactId,
           1,
           user.name,
-          `Added activity "${value.title} - ${value.description}"`
+          `ADDED ACTIVITY "${value.title} - ${value.description}"`,
+          'act'
         );
 
         return super.response(res, {
@@ -151,7 +152,8 @@ class ContactController extends Controller {
           value.contactId,
           value.subCampaignId,
           user.name,
-          `Added note "${value.note}"`
+          `ADDED NOTE "${value.note}"`,
+          'not'
         );
 
         return super.response(res, {
@@ -236,7 +238,7 @@ class ContactController extends Controller {
     }
   }
 
-  async addTimeLine(contactId, subCampaignId, title, description) {
+  async addTimeLine(contactId, subCampaignId, title, description, type) {
     try {
       await super.prisma().contact_Timeline.create({
         data: {
@@ -244,6 +246,7 @@ class ContactController extends Controller {
           sub_campaign_id: subCampaignId,
           title: title,
           description: description,
+          type: type,
         },
       });
       return true;
@@ -289,6 +292,7 @@ class ContactController extends Controller {
         userId: super.joi().number(),
         status: super.joi().number(),
         contactId: super.joi().number(),
+        subCampaignId: super.joi().number().required(),
       });
 
       const { error, value } = scheme.validate(req.body);
@@ -316,19 +320,172 @@ class ContactController extends Controller {
           where: { id: parseInt(value.contactId) },
         });
 
-        // tambahkan fitur rollback tracsaction karena input banyak tabel
-        // jika note ada input add note
-        // input timeline dari note
+        const user = await super.getUser(value.userId);
+        await this.addTimeLine(
+          value.contactId,
+          value.subCampaignId,
+          user.name,
+          `
+          UPDATE CONTACT : <br>
+          Full_name: <b>${value.fullName}</b> <br>
+          Phone_number: <b>${value.phoneNumber}</b> <br>
+          Email: <b>${value.email}</b> <br>
+          Country: <b>${value.country}</b> <br>
+          Address: <b>${value.address}</b> <br>
+          Source: <b>${value.source}</b> <br>
+          Tag: <b>${String(value.tag)}</b> <br>
+          Status: <b>${String(value.status)}</b> <br>
+          Level_priority: <b>${String(value.levelPriority)}</b> <br>
+          Company: <b>${String(value.company)}</b> <br>
+          `,
+          "con"
+        );
 
-        // jika progress ada input add progress
-        // input timeline dari progress
+        // tambahkan fitur rollback tracsaction karena input banyak tabel
+        if (value.note) {
+          // jika note ada input add note
+          await this.addNoteQuery(
+            value.subCampaignId,
+            value.contactId,
+            value.note,
+            value.userId
+          );
+
+          // input timeline dari note
+          await this.addTimeLine(
+            value.contactId,
+            value.subCampaignId,
+            user.name,
+            `ADDED NOTE "${value.note}"`,
+            "not"
+          );
+        }
+
+        if (value.inputProgress) {
+          // jika progress ada input add progress
+          const data = await super.prisma().contact_Activity.create({
+            data: {
+              contact_id: value.contactId,
+              description: value.description,
+              title: value.inputProgress,
+            },
+          });
+
+          await this.addTimeLine(
+            value.contactId,
+            value.subCampaignId,
+            user.name,
+            `ADDED ACTIVITY "${value.title} - ${value.description}"`,
+            "act"
+          );
+        }
 
         // jika ada perubahan di qualified bant maka update
-        // input timeline dari qualified
+        const data = await super.prisma().contact_Bant.upsert({
+          where: { contact_id: value.contactId },
+          update: {
+            lead_type: value.leadType,
+            lead_owner: value.leadOwner,
+            budget: value.budget,
+            need: value.note,
+            authority: value.authority,
+            time: value.time,
+            spesification_project: value.spesificationProject,
+            next_step: value.nextStep,
+          },
+          create: {
+            contact_id: value.contactId,
+            lead_type: value.leadType,
+            lead_owner: value.leadOwner,
+            budget: value.budget,
+            need: value.note,
+            authority: value.authority,
+            time: value.time,
+            spesification_project: value.spesificationProject,
+            next_step: value.nextStep,
+          },
+        });
+
+        await this.addTimeLine(
+          value.contactId,
+          value.subCampaignId,
+          user.name,
+          `
+            UPDATE QUALIFICATION <br>
+            Lead_type: <b>${value.leadType}</b><br>
+            Lead_owner: <b>${value.leadOwner}</b><br>
+            Budget: <b>${value.budget}</b><br>
+            Need: <b>${value.note}</b><br>
+            Authority: <b>${value.authority}</b><br>
+            Time: <b>${value.time}</b><br>
+            Spesification_project: <b>${value.spesificationProject}</b><br>
+            Next_step: <b>${value.nextStep}</b><br>
+          `,
+          "qua"
+        );
 
         // update timeline nego
+        const final = await super.prisma().contact_final.upsert({
+          where: { contact_id: value.contactId },
+          update: {
+            project_name: value.projectName,
+            start_date: String(value.projectStartdate),
+            end_date: String(value.projectEnddate),
+            deal: value.deal,
+            result_negotiation: value.resultOfNegotiation,
 
-        // update timeline done
+            payment_status: value.paymentStatus,
+            deal_done: value.dealDone,
+            evaluation: value.evaluation,
+            feedback: value.feedback,
+            dorumentation: value.documentation,
+          },
+          create: {
+            contact_id: value.contactId,
+            sub_campaign_id: value.subCampaignId,
+            project_name: value.projectName,
+            start_date: String(value.projectStartdate),
+            end_date: String(value.projectEnddate),
+            deal: value.deal,
+            result_negotiation: value.resultOfNegotiation,
+
+            payment_status: value.paymentStatus,
+            deal_done: value.dealDone,
+            evaluation: value.evaluation,
+            feedback: value.feedback,
+            dorumentation: value.documentation,
+          },
+        });
+
+        await this.addTimeLine(
+          value.contactId,
+          value.subCampaignId,
+          user.name,
+          `
+            UPDATE NEGORIATION <br>
+            Project_name: <b>${value.projectName} </b><br>
+            Start_date: <b>${value.projectStartdate} </b><br>
+            End_date: <b>${value.projectEnddate} </b><br>
+            Deal: <b>${value.deal} </b><br>
+            Result_negotiation: <b>${value.resultOfNegotiation} </b><br>
+          `,
+          "neg"
+        );
+
+        await this.addTimeLine(
+          value.contactId,
+          value.subCampaignId,
+          user.name,
+          `
+            UPDATE DONE <br>
+            Payment_status: <b>${value.paymentStatus} </b><br>
+            Deal_done: <b>${value.dealDone} </b><br>
+            Evaluation: <b>${value.evaluation} </b><br>
+            Feedback: <b>${value.feedback} </b><br>
+            Documentation: <b>${value.documentation} </b><br>
+          `,
+          "don"
+        );
 
         return super.response(res, {
           error: false,
