@@ -68,6 +68,9 @@ router.post("/campaign/sub-campaign/contact/activity", (req, res) =>
 router.post("/campaign/sub-campaign/contact/update", (req, res) =>
   instances.ContactController.updateContact(req, res)
 );
+router.post("/campaign/sub-campaign/contact/import", (req, res) =>
+  instances.ContactController.importContact(req, res)
+);
 router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
   instances.ContactController.getContacts(req, res)
 );
@@ -76,6 +79,9 @@ router.get("/campaign/sub-campaign/contact/:id", (req, res) =>
 );
 router.get("/campaign/sub-campaign/contact/timeline/:id", (req, res) =>
   instances.TimelineController.getContactTimeline(req, res)
+);
+router.get("/campaign/contact/search", (req, res) =>
+  instances.ContactController.searchContacts(req, res)
 );
 
 module.exports = router;

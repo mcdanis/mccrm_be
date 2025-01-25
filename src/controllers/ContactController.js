@@ -102,7 +102,7 @@ class ContactController extends Controller {
           1,
           user.name,
           `ADDED ACTIVITY "${value.title} - ${value.description}"`,
-          'act'
+          "act"
         );
 
         return super.response(res, {
@@ -153,7 +153,7 @@ class ContactController extends Controller {
           value.subCampaignId,
           user.name,
           `ADDED NOTE "${value.note}"`,
-          'not'
+          "not"
         );
 
         return super.response(res, {
@@ -172,6 +172,79 @@ class ContactController extends Controller {
         500
       );
     }
+  }
+
+  async importContact(req, res) {
+    const data = req.body;
+    try {
+      const contact = await super.prisma().contact.createMany({
+        data: data,
+      });
+
+      return super.response(res, {
+        error: false,
+        message: "contacts successfully imported",
+      });
+    } catch (error) {
+      return super.response(
+        res,
+        {
+          error: true,
+          message: "Failed to import contact -> " + error?.message,
+          detail: error.message || error,
+        },
+        500
+      );
+    }
+
+    // try {
+    //   const scheme = super.joi().object({
+    //     subCampaignId: super.joi().number().required(),
+    //     contactId: super.joi().number().required(),
+    //     note: super.joi().string().min(3).required(),
+    //     userId: super.joi().number().required(),
+    //   });
+
+    //   const { error, value } = scheme.validate(req.body);
+
+    //   if (error) {
+    //     return super.response(
+    //       res,
+    //       { error: true, message: error.details[0].message },
+    //       400
+    //     );
+    //   } else {
+    //     await this.addNoteQuery(
+    //       value.subCampaignId,
+    //       value.contactId,
+    //       value.note,
+    //       value.userId
+    //     );
+    //     const user = await super.getUser(value.userId);
+    //     await this.addTimeLine(
+    //       value.contactId,
+    //       value.subCampaignId,
+    //       user.name,
+    //       `ADDED NOTE "${value.note}"`,
+    //       "not"
+    //     );
+
+    //     return super.response(res, {
+    //       error: false,
+    //       message: "a note successfully added",
+    //     });
+    //   }
+    // } catch (error) {
+    //   return super.response(
+    //     res,
+    //     {
+    //       error: true,
+    //       message: "Failed to add note",
+    //       detail: error.message || error,
+    //     },
+    //     500
+    //   );
+    // }
   }
 
   async addContact(req, res) {
@@ -220,6 +293,35 @@ class ContactController extends Controller {
           value.userId
         );
 
+        const user = await super.getUser(value.userId);
+        await this.addTimeLine(
+          contact.id,
+          value.subCampaignId,
+          user.name,
+          `ADDED NOTE "${value.note}"`,
+          "not"
+        );
+
+        await this.addTimeLine(
+          contact.id,
+          value.subCampaignId,
+          user.name,
+          `
+          CREATE CONTACT : <br>
+          Full_name: <b>${value.fullName}</b> <br>
+          Phone_number: <b>${value.phoneNumber}</b> <br>
+          Email: <b>${value.email}</b> <br>
+          Country: <b>${value.country}</b> <br>
+          Address: <b>${value.address}</b> <br>
+          Source: <b>${value.source}</b> <br>
+          Tag: <b>${String(value.tag)}</b> <br>
+          Status: <b>${String(value.contactStatus)}</b> <br>
+          Level_priority: <b>${String(value.levelPriority)}</b> <br>
+          Company: <b>${String(value.company)}</b> <br>
+          `,
+          "con"
+        );
+
         return super.response(res, {
           error: false,
           message: "a new contact successfully added",
@@ -256,6 +358,22 @@ class ContactController extends Controller {
     }
   }
 
+  async searchContacts(req, res) {
+    const keyword = req.query.keyword;
+    const data = await super.prisma().contact.findMany({
+      where: {
+        full_name: {
+          contains: keyword,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        subCampaign: true,
+      },
+    });
+    res.json(data);
+  }
+
   async updateContact(req, res) {
     try {
       const scheme = super.joi().object({
@@ -271,14 +389,14 @@ class ContactController extends Controller {
         levelPriority: super.joi().number(),
         inputProgress: super.joi().string().allow(null, "").optional(),
         description: super.joi().string().allow(null, "").optional(),
-        leadType: super.joi().number(),
-        leadOwner: super.joi().number(),
-        budget: super.joi().string(),
-        authority: super.joi().string(),
-        need: super.joi().string(),
-        time: super.joi().string(),
-        spesificationProject: super.joi().string(),
-        nextStep: super.joi().string(),
+        leadType: super.joi().number().allow(null, "").optional(),
+        leadOwner: super.joi().number().allow(null, "").optional(),
+        budget: super.joi().string().allow(null, "").optional(),
+        authority: super.joi().string().allow(null, "").optional(),
+        need: super.joi().string().allow(null, "").optional(),
+        time: super.joi().string().allow(null, "").optional(),
+        spesificationProject: super.joi().string().allow(null, "").optional(),
+        nextStep: super.joi().string().allow(null, "").optional(),
         projectName: super.joi().string().allow(null, "").optional(),
         projectStartdate: super.joi().date().allow(null, "").optional(),
         projectEnddate: super.joi().date().allow(null, "").optional(),
@@ -381,36 +499,37 @@ class ContactController extends Controller {
         }
 
         // jika ada perubahan di qualified bant maka update
-        const data = await super.prisma().contact_Bant.upsert({
-          where: { contact_id: value.contactId },
-          update: {
-            lead_type: value.leadType,
-            lead_owner: value.leadOwner,
-            budget: value.budget,
-            need: value.note,
-            authority: value.authority,
-            time: value.time,
-            spesification_project: value.spesificationProject,
-            next_step: value.nextStep,
-          },
-          create: {
-            contact_id: value.contactId,
-            lead_type: value.leadType,
-            lead_owner: value.leadOwner,
-            budget: value.budget,
-            need: value.note,
-            authority: value.authority,
-            time: value.time,
-            spesification_project: value.spesificationProject,
-            next_step: value.nextStep,
-          },
-        });
+        if (value.status >= 4 && value.status <= 8) {
+          const data = await super.prisma().contact_Bant.upsert({
+            where: { contact_id: value.contactId },
+            update: {
+              lead_type: Number(value.leadType),
+              lead_owner: Number(value.leadOwner),
+              budget: value.budget,
+              need: value.need,
+              authority: value.authority,
+              time: value.time,
+              spesification_project: value.spesificationProject,
+              next_step: value.nextStep,
+            },
+            create: {
+              contact_id: Number(value.contactId),
+              lead_type: Number(value.leadType),
+              lead_owner: value.leadOwner,
+              budget: value.budget,
+              need: value.need,
+              authority: value.authority,
+              time: value.time,
+              spesification_project: value.spesificationProject,
+              next_step: value.nextStep,
+            },
+          });
 
-        await this.addTimeLine(
-          value.contactId,
-          value.subCampaignId,
-          user.name,
-          `
+          await this.addTimeLine(
+            value.contactId,
+            value.subCampaignId,
+            user.name,
+            `
             UPDATE QUALIFICATION <br>
             Lead_type: <b>${value.leadType}</b><br>
             Lead_owner: <b>${value.leadOwner}</b><br>
@@ -421,47 +540,37 @@ class ContactController extends Controller {
             Spesification_project: <b>${value.spesificationProject}</b><br>
             Next_step: <b>${value.nextStep}</b><br>
           `,
-          "qua"
-        );
+            "qua"
+          );
+        }
 
         // update timeline nego
-        const final = await super.prisma().contact_final.upsert({
-          where: { contact_id: value.contactId },
-          update: {
-            project_name: value.projectName,
-            start_date: String(value.projectStartdate),
-            end_date: String(value.projectEnddate),
-            deal: value.deal,
-            result_negotiation: value.resultOfNegotiation,
+        if (value.status >= 5 && value.status <= 8) {
+          const final = await super.prisma().contact_final.upsert({
+            where: { contact_id: value.contactId },
+            update: {
+              project_name: value.projectName,
+              start_date: String(value.projectStartdate),
+              end_date: String(value.projectEnddate),
+              deal: value.deal,
+              result_negotiation: value.resultOfNegotiation,
+            },
+            create: {
+              contact_id: value.contactId,
+              sub_campaign_id: value.subCampaignId,
+              project_name: value.projectName,
+              start_date: String(value.projectStartdate),
+              end_date: String(value.projectEnddate),
+              deal: value.deal,
+              result_negotiation: value.resultOfNegotiation,
+            },
+          });
 
-            payment_status: value.paymentStatus,
-            deal_done: value.dealDone,
-            evaluation: value.evaluation,
-            feedback: value.feedback,
-            dorumentation: value.documentation,
-          },
-          create: {
-            contact_id: value.contactId,
-            sub_campaign_id: value.subCampaignId,
-            project_name: value.projectName,
-            start_date: String(value.projectStartdate),
-            end_date: String(value.projectEnddate),
-            deal: value.deal,
-            result_negotiation: value.resultOfNegotiation,
-
-            payment_status: value.paymentStatus,
-            deal_done: value.dealDone,
-            evaluation: value.evaluation,
-            feedback: value.feedback,
-            dorumentation: value.documentation,
-          },
-        });
-
-        await this.addTimeLine(
-          value.contactId,
-          value.subCampaignId,
-          user.name,
-          `
+          await this.addTimeLine(
+            value.contactId,
+            value.subCampaignId,
+            user.name,
+            `
             UPDATE NEGORIATION <br>
             Project_name: <b>${value.projectName} </b><br>
             Start_date: <b>${value.projectStartdate} </b><br>
@@ -469,14 +578,37 @@ class ContactController extends Controller {
             Deal: <b>${value.deal} </b><br>
             Result_negotiation: <b>${value.resultOfNegotiation} </b><br>
           `,
-          "neg"
-        );
+            "neg"
+          );
+        }
 
-        await this.addTimeLine(
-          value.contactId,
-          value.subCampaignId,
-          user.name,
-          `
+        if (value.status == 8) {
+          const final = await super.prisma().contact_final.upsert({
+            where: { contact_id: value.contactId },
+            update: {
+              payment_status: Number(value.paymentStatus),
+              deal_done: value.dealDone,
+              evaluation: value.evaluation,
+              feedback: value.feedback,
+              dorumentation: value.documentation,
+              project_name: value.projectName,
+            },
+            create: {
+              contact_id: value.contactId,
+              sub_campaign_id: value.subCampaignId,
+              payment_status: Number(value.paymentStatus),
+              deal_done: value.dealDone,
+              evaluation: value.evaluation,
+              feedback: value.feedback,
+              dorumentation: value.documentation,
+              project_name: value.projectName,
+            },
+          });
+          await this.addTimeLine(
+            value.contactId,
+            value.subCampaignId,
+            user.name,
+            `
             UPDATE DONE <br>
             Payment_status: <b>${value.paymentStatus} </b><br>
             Deal_done: <b>${value.dealDone} </b><br>
@@ -484,9 +616,9 @@ class ContactController extends Controller {
             Feedback: <b>${value.feedback} </b><br>
             Documentation: <b>${value.documentation} </b><br>
           `,
-          "don"
-        );
-
+            "don"
+          );
+        }
         return super.response(res, {
           error: false,
           message: "contact successfully updated",

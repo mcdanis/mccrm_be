@@ -61,6 +61,8 @@ model Sub_Campaign {
   created_by Int
   createdAt DateTime @default(now())
   campaign    Campaign     @relation(fields: [campaign_id], references: [id])
+  contacts    Contact[]
+
 
 }
 
@@ -68,7 +70,7 @@ model Contact {
   id  Int @id @default(autoincrement())
   sub_campaign_id Int
   full_name String @db.VarChar(100)
-  email String @unique
+  email String
   phone_number String @db.VarChar(20)
   country String @db.VarChar(30)
   company String?
@@ -84,6 +86,7 @@ model Contact {
   contactNote Contact_Note[]
   contactTimeline Contact_Timeline[]
   contactFinal Contact_final? @relation
+  subCampaign      Sub_Campaign @relation(fields: [sub_campaign_id], references: [id])
 }
 
 // untuk menyimpan relasi kontak untuk mengetahui kontak ini di buat dari kontak lain kontak apa
@@ -116,16 +119,16 @@ model Contact_final {
   id  Int @id @default(autoincrement())
   sub_campaign_id Int
   contact_id Int @unique
-  result_negotiation String @db.Text
+  result_negotiation String? @db.Text
   project_name String
-  start_date String
-  end_date String
-  deal Int
-  payment_status Int
-  deal_done Int
-  evaluation String @db.Text
-  feedback String @db.Text
-  dorumentation String @db.Text
+  start_date String?
+  end_date String?
+  deal Int?
+  payment_status Int?
+  deal_done Int?
+  evaluation String? @db.Text
+  feedback String? @db.Text
+  dorumentation String? @db.Text
   createdAt DateTime @default(now())
   contact    Contact     @relation(fields: [contact_id], references: [id])
 }
