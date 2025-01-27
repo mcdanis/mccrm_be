@@ -26,6 +26,7 @@ model User {
   role      String
   password  String
   client_id Int
+  client      Client @relation(fields: [client_id], references: [id])
   createdAt DateTime @default(now())
 }
 
@@ -38,6 +39,7 @@ model Client {
     phone_number String
     status String @db.VarChar(2)
     createdAt DateTime @default(now())
+    user    User[]
 }
 
 model Campaign {
@@ -69,15 +71,17 @@ model Sub_Campaign {
 model Contact {
   id  Int @id @default(autoincrement())
   sub_campaign_id Int
-  full_name String @db.VarChar(100)
-  email String
-  phone_number String @db.VarChar(20)
+  full_name String @db.VarChar(300)
+  email String?
+  phone_number String?
   country String @db.VarChar(30)
   company String?
-  address String @db.VarChar(255)
+  address String? @db.VarChar(255)
   tag String @db.VarChar(10)
   level_priority String @db.VarChar(2)
   source String?
+  website String?
+  sosmed String?
   status String @db.VarChar(2)
   result_negotiation String?
   createdAt DateTime @default(now())

@@ -69,7 +69,10 @@ router.post("/campaign/sub-campaign/contact/update", (req, res) =>
   instances.ContactController.updateContact(req, res)
 );
 router.post("/campaign/sub-campaign/contact/import", (req, res) =>
-  instances.ContactController.importContact(req, res)
+  instances.ContactController.importContacts(req, res)
+);
+router.post("/campaign/sub-campaign/contact/duplicate/:id", (req, res) =>
+  instances.ContactController.duplicateContact(req, res)
 );
 router.get("/campaign/sub-campaign/contacts/:subCampaignId", (req, res) =>
   instances.ContactController.getContacts(req, res)

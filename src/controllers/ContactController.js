@@ -174,7 +174,7 @@ class ContactController extends Controller {
     }
   }
 
-  async importContact(req, res) {
+  async importContacts(req, res) {
     const data = req.body;
     try {
       const contact = await super.prisma().contact.createMany({
@@ -379,7 +379,7 @@ class ContactController extends Controller {
       const scheme = super.joi().object({
         fullName: super.joi().string(),
         phoneNumber: super.joi().string(),
-        email: super.joi().string().email(),
+        email: super.joi().string(),
         company: super.joi().string(),
         country: super.joi().string(),
         address: super.joi().string(),
@@ -634,6 +634,35 @@ class ContactController extends Controller {
         },
         500
       );
+    }
+  }
+
+  async duplicateContact(req, res) {
+    const { id } = req.params;
+    try {
+      const recordsToDuplicate = await super.prisma().contact.findMany({
+        where: {
+          id: Number(id),
+        },
+      });
+
+      const duplicatedRecords = recordsToDuplicate.map((record) => ({
+        ...record,
+        id: undefined,
+      }));
+
+      await super.prisma().contact.createMany({
+        data: duplicatedRecords,
+      });
+
+      res.json({
+        error: false,
+        message: "data has been duplicated !",
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to duplicate contact", detail: error.message });
     }
   }
 }

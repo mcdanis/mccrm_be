@@ -51,7 +51,7 @@ class Controller {
 
         this.response(res, {
           error: false,
-          message: "a client has been deleted",
+          message: "a data has been deleted",
         });
       }
     } catch (error) {

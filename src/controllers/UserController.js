@@ -7,7 +7,11 @@ class UserController extends Controller {
 
   async getUsers(req, res) {
     try {
-      const users = await super.prisma().user.findMany();
+      const users = await super.prisma().user.findMany({
+        include: {
+          client: true,
+        },
+      });
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch users" });
