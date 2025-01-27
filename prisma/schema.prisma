@@ -86,9 +86,9 @@ model Contact {
   result_negotiation String?
   createdAt DateTime @default(now())
   contactBant Contact_Bant? @relation
-  contactActivity Contact_Activity[]
-  contactNote Contact_Note[]
-  contactTimeline Contact_Timeline[]
+  contactActivity Contact_Activity[] @relation
+  contactNote Contact_Note[] @relation
+  contactTimeline Contact_Timeline[] @relation
   contactFinal Contact_final? @relation
   subCampaign      Sub_Campaign @relation(fields: [sub_campaign_id], references: [id])
 }
@@ -116,7 +116,7 @@ model Contact_Note {
   note String
   createdAt DateTime @default(now())
   user_id Int
-  contact    Contact     @relation(fields: [contact_id], references: [id])
+  contact    Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 }
 
 model Contact_final {
@@ -134,7 +134,7 @@ model Contact_final {
   feedback String? @db.Text
   dorumentation String? @db.Text
   createdAt DateTime @default(now())
-  contact    Contact     @relation(fields: [contact_id], references: [id])
+  contact    Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 }
 
 model Contact_Activity {
@@ -143,7 +143,7 @@ model Contact_Activity {
   title String @db.VarChar(50)
   description String
   createdAt DateTime @default(now())
-  contact    Contact     @relation(fields: [contact_id], references: [id])
+  contact    Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 }
 model Contact_Bant {
   id  Int @id @default(autoincrement())
@@ -157,7 +157,7 @@ model Contact_Bant {
   spesification_project String
   next_step String
   createdAt DateTime @default(now())
-  contact    Contact  @relation(fields: [contact_id], references: [id])
+  contact    Contact  @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
 }
 model Contact_Timeline {
@@ -168,7 +168,7 @@ model Contact_Timeline {
   description String
   type String? @db.VarChar(3)
   createdAt DateTime @default(now())
-  contact    Contact     @relation(fields: [contact_id], references: [id])
+  contact    Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 }
 model Campaign_User {
   id  Int @id @default(autoincrement())
