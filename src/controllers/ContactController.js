@@ -493,7 +493,7 @@ class ContactController extends Controller {
             value.contactId,
             value.subCampaignId,
             user.name,
-            `ADDED ACTIVITY "${value.title} - ${value.description}"`,
+            `ADDED ACTIVITY "${value.inputProgress} - ${value.description}"`,
             "act"
           );
         }
@@ -649,6 +649,7 @@ class ContactController extends Controller {
       const duplicatedRecords = recordsToDuplicate.map((record) => ({
         ...record,
         id: undefined,
+        full_name: `${record.full_name} + copy ` + date("Y-m-d"),
       }));
 
       await super.prisma().contact.createMany({
@@ -663,6 +664,30 @@ class ContactController extends Controller {
       res
         .status(500)
         .json({ error: "Failed to duplicate contact", detail: error.message });
+    }
+  }
+
+  async addAsCustomer(req, res) {
+    const { id, note } = req.body;
+    try {
+      const add = await super.prisma().customer.upsert({
+        create: {
+          contact_id: Number(id),
+          note: note,
+          tag: "",
+        },
+        update: { note: note, tag: "" },
+        where: { contact_id: Number(id) },
+      });
+
+      res.json({
+        error: false,
+        message: "contact added as customer successfully!",
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to adding customer ", detail: error.message });
     }
   }
 }
