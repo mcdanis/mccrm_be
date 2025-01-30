@@ -14,6 +14,26 @@ class CampaignController extends Controller {
     }
   }
 
+  async getCampaign(req, res) {
+    const { id } = req.params;
+    try {
+      const data = await super.prisma().campaign.findFirst({
+        where: {
+          id: Number(id),
+        },
+        include: {
+          subCampaigns: true,
+          user: true,
+        },
+      });
+      res.json(data);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to fetch campaign " + error.message });
+    }
+  }
+
   async getSubCampaign(req, res) {
     const { id } = req.params;
     try {
@@ -29,6 +49,30 @@ class CampaignController extends Controller {
     } catch (error) {
       res.status(500).json({
         error: "Failed to get sub campaign",
+        detail: error.message || error,
+      });
+    }
+  }
+
+  async updateCampaign(req, res) {
+    const { campaignId, campaignName, campaignStatus } = req.body;
+    try {
+      const data = await super.prisma().campaign.update({
+        where: {
+          id: Number(campaignId),
+        },
+        data: {
+          name: campaignName,
+          status: campaignStatus,
+        },
+      });
+      res.json({
+        error: false,
+        message: "campaign updated!",
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Failed to update campaign",
         detail: error.message || error,
       });
     }

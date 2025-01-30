@@ -27,6 +27,8 @@ model User {
   password  String
   client_id Int
   client      Client @relation(fields: [client_id], references: [id])
+  campaigns      Campaign[]
+  subCampaigns   Sub_Campaign[]
   createdAt DateTime @default(now())
 }
 
@@ -48,6 +50,7 @@ model Campaign {
   client_id Int
   status String @db.VarChar(2)
   created_by Int
+  user             User            @relation(fields: [created_by], references: [id])
   createdAt DateTime @default(now())
   subCampaigns Sub_Campaign[]
 }
@@ -64,8 +67,7 @@ model Sub_Campaign {
   createdAt DateTime @default(now())
   campaign    Campaign     @relation(fields: [campaign_id], references: [id])
   contacts    Contact[]
-
-
+  user             User            @relation(fields: [created_by], references: [id])
 }
 
 model Contact {

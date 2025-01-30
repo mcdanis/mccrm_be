@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma migrate deploy"
   },
   "author": "mcdanis",
   "license": "ISC",

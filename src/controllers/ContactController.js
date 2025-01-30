@@ -690,5 +690,36 @@ class ContactController extends Controller {
         .json({ error: "Failed to adding customer ", detail: error.message });
     }
   }
+
+  async moveContact(req, res) {
+    const { id, newSubCampaignId } = req.body;
+
+    try {
+      const data = {
+        data: { sub_campaign_id: newSubCampaignId },
+        where: {
+          contact_id: id,
+        },
+      };
+      await super.prisma().contact.update({
+        data: { sub_campaign_id: newSubCampaignId },
+        where: {
+          id: id,
+        },
+      });
+      await super.prisma().contact_Timeline.updateMany(data);
+      await super.prisma().contact_final.updateMany(data);
+      await super.prisma().contact_Note.updateMany(data);
+
+      res.json({
+        error: false,
+        message: "contact has been moved!",
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to move contact", detail: error.message });
+    }
+  }
 }
 module.exports = ContactController;

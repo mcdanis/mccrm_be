@@ -43,11 +43,17 @@ router.delete("/client/delete/:model/:id", authMiddleware, async (req, res) =>
 router.get("/campaigns", (req, res) =>
   instances.CampaignController.getCampaigns(req, res)
 );
+router.get("/campaign/:id", (req, res) =>
+  instances.CampaignController.getCampaign(req, res)
+);
 router.get("/campaigns-with-subs", (req, res) =>
   instances.CampaignController.getCampaignsWithSubs(req, res)
 );
 router.post("/campaign/add", authMiddleware, async (req, res) =>
   instances.CampaignController.addCampaign(req, res)
+);
+router.post("/campaign/update", authMiddleware, async (req, res) =>
+  instances.CampaignController.updateCampaign(req, res)
 );
 
 // SUB CAMPAIGN
@@ -85,6 +91,9 @@ router.get("/campaign/sub-campaign/contact/timeline/:id", (req, res) =>
 );
 router.get("/campaign/contact/search", (req, res) =>
   instances.ContactController.searchContacts(req, res)
+);
+router.post("/campaign/sub-campaign/contact/move", (req, res) =>
+  instances.ContactController.moveContact(req, res)
 );
 router.post("/campaign/sub-campaign/contact/customer", (req, res) =>
   instances.ContactController.addAsCustomer(req, res)
