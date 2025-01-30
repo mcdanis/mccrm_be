@@ -14,8 +14,5 @@
     ],
     "env": {
         "DATABASE_URL": "postgres://postgres.mxfbxziviqivpvqbgtng:JQDV8NLvTKYN3Fh1@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x"
-    },
-    "hooks": {
-        "build": "npm run prisma-generate"
     }
 }
