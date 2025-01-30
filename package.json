@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prisma-generate": "prisma generate",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
