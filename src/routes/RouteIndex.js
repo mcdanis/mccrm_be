@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/AuthMiddleware");
+require("dotenv").config();
 
 const controllers = {
   UserController: require("../controllers/UserController"),
@@ -17,7 +18,9 @@ for (const [name, Controller] of Object.entries(controllers)) {
 }
 
 router.get("/test", (req, res) => instances.UserController.getUsers(req, res));
-
+router.get("/coba", (req, res) => {
+  res.send(process.env.JWT + " - " + process.env.DATABASE_URL);
+});
 // USER
 router.post("/user/add", (req, res) =>
   instances.UserController.addUser(req, res)
