@@ -6,7 +6,8 @@
   "scripts": {
     "prisma-generate": "prisma generate",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "build": "prisma generate && your_build_command"
   },
   "author": "mcdanis",
   "license": "ISC",
