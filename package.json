@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prisma-generate": "prisma generate",
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "next build",
-    "prisma:generate": "prisma generate"
+    "build": "prisma generate && npm run start"
   },
   "author": "mcdanis",
   "license": "ISC",
