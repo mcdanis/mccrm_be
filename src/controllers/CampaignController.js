@@ -159,7 +159,7 @@ class CampaignController extends Controller {
 
         await super.prisma().sub_Campaign.create({
           data: {
-            campaign_id: campaignId,
+            campaign_id: Number(campaignId),
             name: value.subCampaignName,
             owner: value.subCampaignOwner,
             manager: value.subCampaignManager,
