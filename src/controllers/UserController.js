@@ -26,6 +26,13 @@ class UserController extends Controller {
         where: {
           id: Number(id),
         },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          title: true,
+        },
       });
       res.json(users);
     } catch (error) {

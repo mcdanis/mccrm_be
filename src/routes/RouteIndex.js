@@ -19,7 +19,8 @@ for (const [name, Controller] of Object.entries(controllers)) {
 
 router.get("/test", (req, res) => instances.UserController.getUsers(req, res));
 router.get("/coba", (req, res) => {
-  res.send(process.env.JWT + " - " + process.env.DATABASE_URL);
+  // res.send(process.env.JWT + " - " + process.env.DATABASE_URL);
+  res.send(process.env.FE);
 });
 // USER
 router.post("/user/add", (req, res) =>

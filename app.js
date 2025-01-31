@@ -5,23 +5,23 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
 const port = 3030;
+require("dotenv").config();
 
 var indexRouter = require("./src/routes/RouteIndex");
 // var usersRouter = require("./routes/RouteUsers");
 
 var app = express();
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3003"];
+const allowedOrigins = [process.env.FE];
 
 const options = {
-  //   origin: (origin, callback) => {
-  //     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error("Not allowed by CORS"));
-  //     }
-  //   },
-  origin: true,
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: "GET,POST,DELETE,PUT",
 };
 
