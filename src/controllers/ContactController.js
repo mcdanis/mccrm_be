@@ -251,17 +251,19 @@ class ContactController extends Controller {
     try {
       const scheme = super.joi().object({
         fullName: super.joi().string().required(),
-        phoneNumber: super.joi().string().required(),
-        email: super.joi().string().email().required(),
-        country: super.joi().string().required(),
-        address: super.joi().string().required(),
+        phoneNumber: super.joi().string().optional(),
+        email: super.joi().string().email().optional(),
+        country: super.joi().string().optional(),
+        address: super.joi().string().optional(),
         source: super.joi().string().required(),
         note: super.joi().string().required(),
         tag: super.joi().number().required(),
         contactStatus: super.joi().number().required(),
         levelPriority: super.joi().number().required(),
         subCampaignId: super.joi().number().required(),
-        company: super.joi().string().required(),
+        company: super.joi().string().optional(),
+        website: super.joi().string().optional(),
+        sosmed: super.joi().string().optional(),
         userId: super.joi().number().required(),
       });
 
@@ -283,6 +285,8 @@ class ContactController extends Controller {
             status: String(value.contactStatus),
             level_priority: String(value.levelPriority),
             company: String(value.company),
+            website: String(value.website),
+            sosmed: String(value.sosmed),
           },
         });
 
@@ -407,6 +411,8 @@ class ContactController extends Controller {
         evaluation: super.joi().string().allow(null, "").optional(),
         feedback: super.joi().string().allow(null, "").optional(),
         documentation: super.joi().string().allow(null, "").optional(),
+        website: super.joi().string().allow(null, "").optional(),
+        sosmed: super.joi().string().allow(null, "").optional(),
         userId: super.joi().number(),
         status: super.joi().number(),
         contactId: super.joi().number(),
@@ -434,6 +440,8 @@ class ContactController extends Controller {
             status: String(value.status),
             level_priority: String(value.levelPriority),
             company: String(value.company),
+            website: String(value.website),
+            sosmed: String(value.sosmed),
           },
           where: { id: parseInt(value.contactId) },
         });
@@ -450,6 +458,8 @@ class ContactController extends Controller {
           Email: <b>${value.email}</b> <br>
           Country: <b>${value.country}</b> <br>
           Address: <b>${value.address}</b> <br>
+          sosmed: <b>${value.sosmed}</b> <br>
+          website: <b>${value.website}</b> <br>
           Source: <b>${value.source}</b> <br>
           Tag: <b>${String(value.tag)}</b> <br>
           Status: <b>${String(value.status)}</b> <br>
