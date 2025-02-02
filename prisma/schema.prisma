@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL2")
+  url      = env("DATABASE_URL")
 }
 
 // MIGRATION
@@ -30,6 +30,7 @@ model User {
   campaigns      Campaign[]
   subCampaigns   Sub_Campaign[]
   createdAt DateTime @default(now())
+  accesses      User_Access[]
 }
 
 model Client {
@@ -178,4 +179,20 @@ model Campaign_User {
   sub_campaign_id Int
   client_id Int
   createdAt DateTime @default(now())
+}
+
+model Module {
+  id          Int            @id @default(autoincrement())
+  name        String
+  parent_url  String
+  accesses    User_Access[]   
+}
+
+model User_Access {
+  id        Int      @id @default(autoincrement())
+  module_id Int
+  user_id   Int
+  module    Module   @relation(fields: [module_id], references: [id]) 
+  action      String         @db.VarChar(10)
+  user      User     @relation(fields: [user_id], references: [id]) 
 }
