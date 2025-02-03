@@ -102,5 +102,8 @@ router.post("/campaign/sub-campaign/contact/move", (req, res) =>
 router.post("/campaign/sub-campaign/contact/customer", (req, res) =>
   instances.ContactController.addAsCustomer(req, res)
 );
+router.post("/campaign/sub-campaign/contact/split", (req, res) =>
+  instances.ContactController.splitContact(req, res)
+);
 
 module.exports = router;

@@ -105,7 +105,11 @@ class UserController extends Controller {
       });
 
       if (!user) {
-        return super.response(res, { error: "User not found" }, 404);
+        return super.response(
+          res,
+          { error: true, message: "User not found" },
+          404
+        );
       }
 
       const isPasswordValid = await super

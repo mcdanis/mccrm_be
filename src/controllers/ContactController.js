@@ -12,6 +12,9 @@ class ContactController extends Controller {
         where: {
           sub_campaign_id: Number(subCampaignId),
         },
+        orderBy: {
+          id: "desc",
+        },
       });
 
       res.json(data);
@@ -363,30 +366,56 @@ class ContactController extends Controller {
   }
 
   async searchContacts(req, res) {
-    const keyword = req.query.keyword;
+    const { keyword, tag, subCampaignId, priority, status } = req.query;
+
+    // Membuat kondisi pencarian secara dinamis
+    const conditions = {};
+
+    // Hanya tambahkan kondisi jika nilai parameter tidak kosong
+    if (keyword) {
+      conditions.full_name = {
+        contains: keyword,
+        mode: "insensitive",
+      };
+    }
+
+    if (tag) {
+      conditions.tag = tag;
+    }
+
+    if (priority) {
+      conditions.level_priority = priority;
+    }
+
+    if (subCampaignId) {
+      conditions.sub_campaign_id = Number(subCampaignId);
+    }
+
+    if (status) {
+      conditions.status = status;
+    }
+
+    // Lakukan query dengan kondisi yang telah disusun
     const data = await super.prisma().contact.findMany({
-      where: {
-        full_name: {
-          contains: keyword,
-          mode: "insensitive",
-        },
-      },
+      where: conditions,
       include: {
         subCampaign: true,
       },
     });
+
+    // Kembalikan hasil pencarian
     res.json(data);
   }
 
   async updateContact(req, res) {
     try {
       const scheme = super.joi().object({
-        fullName: super.joi().string(),
-        phoneNumber: super.joi().string(),
-        email: super.joi().string(),
-        company: super.joi().string(),
-        country: super.joi().string(),
-        address: super.joi().string(),
+        fullName: super.joi().string().required(),
+        phoneNumber: super.joi().string().optional(),
+        email: super.joi().string().optional(),
+        company: super.joi().string().optional(),
+        country: super.joi().string().optional(),
+        address: super.joi().string().optional(),
         source: super.joi().string(),
         note: super.joi().string().allow(null, "").optional(),
         tag: super.joi().number(),
@@ -698,6 +727,53 @@ class ContactController extends Controller {
       res
         .status(500)
         .json({ error: "Failed to adding customer ", detail: error.message });
+    }
+  }
+
+  async splitContact(req, res) {
+    const { contactId, data, type } = req.body;
+    const recordsToDuplicate = await super.prisma().contact.findMany({
+      where: {
+        id: Number(contactId),
+      },
+    });
+
+    const duplicatedRecords = [];
+    try {
+      for (let i = 0; i < data.length; i++) {
+        const newRecords = recordsToDuplicate.map((record) => {
+          let updatedRecord = {
+            ...record,
+            id: undefined,
+          };
+          if (type === "phone") {
+            updatedRecord.phone_number = data[i];
+            updatedRecord.full_name = `${record.full_name} + Split_Phone ${
+              i + 1
+            }`;
+          } else if (type === "email") {
+            updatedRecord.full_name = `${record.full_name} + Split_E-Mail ${
+              i + 1
+            }`;
+            updatedRecord.email = data[i];
+          }
+          return updatedRecord;
+        });
+        duplicatedRecords.push(...newRecords);
+      }
+
+      await super.prisma().contact.createMany({
+        data: duplicatedRecords,
+      });
+
+      res.json({
+        error: false,
+        message: "Contact has been splited!",
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Failed to split contact", detail: error.message });
     }
   }
 
